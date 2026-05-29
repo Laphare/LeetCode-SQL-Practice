@@ -1,0 +1,31 @@
+#Approach 1
+
+WITH I1 AS (
+    SELECT tiv_2016, tiv_2015,
+           COUNT(*) OVER(PARTITION BY tiv_2015) as tiv_count,
+           COUNT(*) OVER(PARTITION BY lat, lon) as latc
+    FROM Insurance
+)
+SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM I1
+WHERE tiv_count > 1 AND latc = 1;
+
+
+#Approach 2
+
+WITH I1 AS (
+    SELECT tiv_2015
+    FROM Insurance
+    GROUP BY tiv_2015
+    HAVING COUNT(*) > 1
+),
+I2 AS (
+    SELECT lat,lon
+    FROM Insurance
+    GROUP BY lat,lon
+    HAVING COUNT(*) = 1
+)
+SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM Insurance 
+WHERE tiv_2015 IN (SELECT tiv_2015 FROM I1)
+AND (lat,lon) IN (SELECT lat,lon FROM I2)
