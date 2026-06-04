@@ -1,0 +1,16 @@
+WITH update_date AS (
+    SELECT  
+        product_id,
+        new_price AS price,
+        ROW_NUMBER() OVER(PARTITION BY product_id ORDER BY change_date DESC) AS rn
+    FROM Products 
+    WHERE change_date < '2019-08-17'
+)
+SELECT 
+    d.product_id,
+    COALESCE(u.price, 10) AS price
+FROM 
+    (SELECT product_id FROM Products GROUP BY product_id) d
+LEFT JOIN 
+    update_date u
+    ON d.product_id = u.product_id AND u.rn = 1;
