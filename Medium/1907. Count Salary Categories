@@ -1,0 +1,18 @@
+WITH category_class AS (SELECT
+'Low Salary' AS category
+union 
+SELECT 'Average Salary' AS category
+union 
+SELECT 'High Salary' AS category
+),
+classed AS (SELECT
+(CASE WHEN income < 20000 THEN 'Low Salary'  WHEN income >= 20000 AND income<= 50000 THEN 'Average Salary' WHEN income >50000 THEN 'High Salary' END) AS category
+FROM Accounts)
+SELECT
+d.category,
+COUNT(c.category) AS accounts_count
+FROM category_class d
+LEFT JOIN classed c
+ON d.category = c.category
+GROUP BY d.category
+ORDER BY accounts_count
