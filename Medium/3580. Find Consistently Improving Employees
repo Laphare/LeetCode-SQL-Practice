@@ -1,0 +1,14 @@
+WITH rn_list AS (SELECT review_id,employee_id,review_date,rating,
+ROW_NUMBER()OVER(PARTITION BY employee_id ORDER BY review_date DESC) AS rn_num
+FROM performance_reviews)
+
+SELECT r.employee_id, e.name, 
+MAX(CASE WHEN r.rn_num = 1 THEN rating END)- MAX(CASE WHEN r.rn_num = 3 THEN rating END)AS improvement_score
+FROM rn_list r
+LEFT JOIN employees e
+ON e.employee_id = r.employee_id
+GROUP BY r.employee_id,e.name 
+HAVING COUNT(*)>=3
+AND MAX(CASE WHEN r.rn_num = 1 THEN rating END) > MAX(CASE WHEN r.rn_num = 2 THEN rating END)
+AND MAX(CASE WHEN r.rn_num = 2 THEN rating END) > MAX(CASE WHEN r.rn_num = 3 THEN rating END)
+ORDER BY improvement_score DESC, name ASC
