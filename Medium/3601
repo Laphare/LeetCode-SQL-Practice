@@ -1,0 +1,24 @@
+# Write your MySQL query statement below
+
+WITH fuel_efficiency_list AS (
+    SELECT driver_id,trip_date,(distance_km/fuel_consumed) AS fuel_efficiency
+    FROM trips
+    ),
+    
+half_list AS (SELECT driver_id,
+AVG(CASE WHEN trip_date BETWEEN '2023-01-01' AND '2023-06-30' THEN fuel_efficiency END)AS first_half_avg,
+AVG(CASE WHEN trip_date BETWEEN '2023-07-01' AND '2023-12-31' THEN fuel_efficiency END)AS second_half_avg
+FROM fuel_efficiency_list
+GROUP BY driver_id
+)
+
+SELECT h.driver_id,d.driver_name,
+ROUND(h.first_half_avg,2) AS first_half_avg,
+ROUND(h.second_half_avg,2) AS second_half_avg,
+ROUND((h.second_half_avg - h.first_half_avg),2) AS efficiency_improvement
+FROM half_list h
+INNER JOIN drivers d
+ON h.driver_id=d.driver_id
+WHERE h.second_half_avg > h.first_half_avg
+AND h.first_half_avg IS NOT NULL
+ORDER BY efficiency_improvement DESC, d.driver_name ASC
