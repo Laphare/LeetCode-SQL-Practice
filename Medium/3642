@@ -1,0 +1,20 @@
+# Write your MySQL query statement below
+
+WITH cleared_table AS (SELECT book_id,
+SUM(CASE WHEN session_rating IS NOT NULL THEN 1 ELSE 0 END) AS total_session,
+SUM(CASE WHEN session_rating <= 2 OR session_rating >= 4 THEN 1 ELSE 0 END) AS total_extreme_ratings,
+MAX(session_rating)-MIN(session_rating) AS rating_spread
+FROM reading_sessions
+GROUP BY book_id
+HAVING COUNT(*)>= 5
+AND SUM(CASE WHEN session_rating <= 2 THEN 1 ELSE 0 END)>=1
+AND SUM(CASE WHEN session_rating >= 4 THEN 1 ELSE 0 END)>=1
+)
+
+SELECT c.book_id, b.title,b.author,b.genre,b.pages,c.rating_spread,
+ROUND((c.total_extreme_ratings/c.total_session),2) AS polarization_score
+FROM cleared_table c
+INNER JOIN books b
+ON c.book_id=b.book_id
+WHERE IFNULL((c.total_extreme_ratings/NULLIF(c.total_session,0)),0) >= 0.6
+ORDER BY polarization_score DESC, b.title DESC
