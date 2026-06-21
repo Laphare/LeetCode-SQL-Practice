@@ -1,0 +1,17 @@
+WITH
+unique_queries_list AS (SELECT employee_id,
+COUNT(*) AS unique_queries
+FROM queries
+WHERE EXTRACT(MONTH FROM query_starttime) IN (7,8,9)
+AND EXTRACT(YEAR FROM query_starttime) = 2023
+GROUP BY employee_id)
+
+SELECT 
+COALESCE(u.unique_queries,0) AS unique_queries,
+COUNT(*) AS employee_count
+FROM employees e 
+LEFT JOIN unique_queries_list u 
+ON u.employee_id = e.employee_id
+GROUP BY u.unique_queries
+
+ORDER BY unique_queries
