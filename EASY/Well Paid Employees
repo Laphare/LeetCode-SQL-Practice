@@ -1,0 +1,9 @@
+WITH
+non_manager_list AS (SELECT employee_id,name AS employee_name,salary,manager_id
+FROM employee
+WHERE manager_id IS NOT NULL)
+SELECT n.employee_id,n.employee_name
+FROM non_manager_list n 
+INNER JOIN employee e 
+ON n.manager_id=e.employee_id
+WHERE n.salary > e.salary
