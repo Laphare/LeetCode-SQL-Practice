@@ -1,0 +1,7 @@
+with rn_list AS (SELECT *,
+ROW_NUMBER()OVER(Partition BY user_id ORDER BY transaction_date) as rn 
+FROM transactions
+)
+SELECT user_id, spend,transaction_date
+FROM rn_list 
+WHERE rn = 3
