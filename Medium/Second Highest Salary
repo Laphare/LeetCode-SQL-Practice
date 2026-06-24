@@ -3,4 +3,4 @@ FROM employee
 GROUP BY salary
 
 ORDER BY salary DESC
-LIMIT 1 OFFset 1
+LIMIT 1 OFFset 1;
