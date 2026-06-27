@@ -1,3 +1,4 @@
+-- APPROACH 1
 WITH 
 dist_listed AS (
 SELECT DISTINCT user_id,transaction_date::date 
@@ -15,3 +16,23 @@ FROM three_days_list
 WHERE 
 transaction_date - pre_date = 1
 AND next_date - transaction_date = 1
+
+-- APPROACH 2
+WITH
+dist_list AS
+(SELECT DISTINCT user_id, transaction_date::date AS transaction_date
+FROM transactions),
+
+rn_list AS
+(
+SELECT user_id, transaction_date,
+transaction_date - ROW_NUMBER()OVER(PARTITION BY user_id ORDER BY transaction_date)::int  AS inter_day
+FROM dist_list
+)
+
+SELECT user_id
+FROM rn_list
+GROUP BY user_id,inter_day
+HAVING COUNT(*) >= 3
+ORDER BY user_id
+
