@@ -1,0 +1,12 @@
+WITH
+rn_list AS (
+SELECT * , rank() OVER(ORDER BY order_occurrences DESC) AS rn
+FROM items_per_order
+ORDER BY rn
+)
+
+
+SELECT item_count AS mode
+FROM rn_list
+WHERE rn = 1
+ORDER BY mode
