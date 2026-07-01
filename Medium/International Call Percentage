@@ -1,0 +1,7 @@
+SELECT 
+ROUND(AVG(CASE WHEN pir.country_id <> pic.country_id THEN 100.0 ELSE 0 END),1) AS international_calls_pct
+FROM phone_calls pc
+INNER JOIN phone_info pic 
+ON pic.caller_id = pc.caller_id
+INNER JOIN phone_info pir 
+ON pir.caller_id = pc.receiver_id
